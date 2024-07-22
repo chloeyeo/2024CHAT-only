@@ -20,10 +20,13 @@ public class ChatRoomService {
 
     public String getChatRoomId(Long senderId, Long recipientId) { // creates chatroom and returns the chatroom id if it doesn't exist
         List<ChatRoom> chatRooms = chatRoomRepository.findBySenderIdAndRecipientId(senderId, recipientId);
-        ChatRoom chatRoom = chatRooms.get(0);
-        if (chatRooms.size() > 1) {
-        	chatRooms.clear();
-        	chatRooms.add(chatRoom);
+        ChatRoom chatRoom = null;
+        if (!chatRooms.isEmpty()) {
+        	chatRoom = chatRooms.get(0);
+        	if (chatRooms.size() > 1) {
+        		chatRooms.clear();
+            	chatRooms.add(chatRoom);
+        	}
         }
         if (chatRoom!=null) {
         	return chatRoom.getChatRoomId();

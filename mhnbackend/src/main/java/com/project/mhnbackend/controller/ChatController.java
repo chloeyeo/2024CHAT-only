@@ -1,8 +1,10 @@
 package com.project.mhnbackend.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -19,7 +21,6 @@ import com.project.mhnbackend.mongo.service.ChatMessageService;
 import com.project.mhnbackend.service.ChatRoomService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 
 @Controller
@@ -32,12 +33,12 @@ public class ChatController { //handles web requests and websocket communication
 
     @MessageMapping("/chat.sendMessage")
     public ChatMessage receiveMessage(@Payload ChatMessage chatMessage) {
-        // Associate the message with a chat room
+    	log.info("Received message: {}", chatMessage);
         String chatRoomId = chatRoomService.getChatRoomId(
                 chatMessage.getSenderId(),
                 chatMessage.getRecipientId()
         );
-
+        log.info("Chat room ID: {}", chatRoomId);
         chatMessage.setChatRoomId(chatRoomId);
 
         ChatMessage savedMsg = chatMessageService.saveMessage(chatMessage);
@@ -46,7 +47,8 @@ public class ChatController { //handles web requests and websocket communication
                 "/private",
                 chatMessage
         );
-        System.out.println(savedMsg.toString());
+        log.info("Saved message: {}", savedMsg);
+        log.info("Message sent to user {}", chatMessage.getRecipientId());
         return savedMsg;
     }
 
@@ -71,7 +73,7 @@ public class ChatController { //handles web requests and websocket communication
         List<ChatMessage> messages = chatMessageService.getMessagesByChatRoomId(chatRoomId);
         return ResponseEntity.ok(new ChatRoomDTO(chatRoom, messages));
     }
-    
+
     @GetMapping("/api/chat/room/{senderId}/{recipientId}")
     public ResponseEntity<String> getChatRoomId(@PathVariable("senderId") Long senderId, @PathVariable("recipientId") Long recipientId) {
         log.info("Received request for chat room with senderId: {} and recipientId: {}", senderId, recipientId);
@@ -82,6 +84,20 @@ public class ChatController { //handles web requests and websocket communication
         } catch (Exception e) {
             log.error("Error getting chat room ID", e);
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/api/chat/messages/{chatRoomId}")
+    public ResponseEntity<List<ChatMessage>> getChatMessages(@PathVariable("chatRoomId") String chatRoomId) {
+        log.info("Received request for messages in chat room: {}", chatRoomId);
+        try {
+            List<ChatMessage> messages = chatMessageService.getMessagesByChatRoomId(chatRoomId);
+            log.info("Returning {} messages for chat room: {}", messages.size(), chatRoomId);
+            return ResponseEntity.ok(messages);
+        } catch (Exception e) {
+            log.error("Error getting messages for chat room: {}", chatRoomId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ArrayList<>());  // Return an empty list in case of error
         }
     }
     

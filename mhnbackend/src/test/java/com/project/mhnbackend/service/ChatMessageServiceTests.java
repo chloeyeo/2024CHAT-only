@@ -20,6 +20,7 @@ public class ChatMessageServiceTests {
 	
 	@Test
     public void testGetMessagesByChatRoomId() {
+		List<ChatMessage> chatmessages = new ArrayList<>()
 		ChatMessage chatMessage = ChatMessage.builder()
 				.id(1L)
 				.chatRoomId("chatroom1")
@@ -27,7 +28,23 @@ public class ChatMessageServiceTests {
         		.recipientId(2L)
         		.content("first message sent")
 				.build();
+		ChatMessage chatMessage2 = ChatMessage.builder()
+				.id(1L)
+				.chatRoomId("chatroom1")
+        		.senderId(1L)
+        		.recipientId(2L)
+        		.content("second message sent")
+				.build();
+		ChatMessage chatMessage3 = ChatMessage.builder()
+				.id(1L)
+				.chatRoomId("chatroom1")
+        		.senderId(1L)
+        		.recipientId(2L)
+        		.content("third message sent")
+				.build();
 		chatMessageRepository.save(chatMessage);
+		chatMessageRepository.save(chatMessage2);
+		chatMessageRepository.save(chatMessage3);
 		List<ChatMessage> messages = chatMessageService.getMessagesByChatRoomId(chatMessage.getChatRoomId());
 		for (ChatMessage message: messages) {
 			System.out.println(message.getContent());
