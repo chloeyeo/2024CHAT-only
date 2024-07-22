@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import com.project.mhnbackend.domain.ChatRoom;
@@ -12,17 +13,18 @@ import com.project.mhnbackend.repository.ChatRoomRepository;
 
 import lombok.RequiredArgsConstructor;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
-//    private final ChatMessageRepository chatMessageRepository;
 
     public String getChatRoomId(Long senderId, Long recipientId) { // creates chatroom and returns the chatroom id if it doesn't exist
         List<ChatRoom> chatRooms = chatRoomRepository.findBySenderIdAndRecipientId(senderId, recipientId);
         ChatRoom chatRoom = null;
         if (!chatRooms.isEmpty()) {
         	chatRoom = chatRooms.get(0);
+            log.info("chat room id retrieved:" + chatRoom.getChatRoomId());
         	if (chatRooms.size() > 1) {
         		chatRooms.clear();
             	chatRooms.add(chatRoom);

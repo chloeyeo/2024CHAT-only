@@ -48,10 +48,12 @@ public class ChatMessageService {
     }
 
     public List<ChatMessage> getMessagesByChatRoomId(String chatRoomId) {
-        Optional<ChatMessageDTO> optionalChatMessageDTO = chatMessageRepository.findById(chatRoomId);
-        if (optionalChatMessageDTO.isPresent()) {
-            return optionalChatMessageDTO.get().getMessages();
+        List<ChatMessageDTO> dtos = chatMessageRepository.findAll();
+        for (ChatMessageDTO dto : dtos) {
+            if (dto.getChatRoomId().equals(chatRoomId)) {
+                return dto.getMessages();
+            }
         }
-        return List.of(); // Return an empty list if no messages are found
+        return new ArrayList<>();
     }
 }

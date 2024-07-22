@@ -82,10 +82,9 @@ public class ChatController { //handles web requests and websocket communication
 
     @GetMapping("/api/chat/room/{senderId}/{recipientId}")
     public ResponseEntity<String> getChatRoomId(@PathVariable("senderId") Long senderId, @PathVariable("recipientId") Long recipientId) {
-        log.info("Received request for chat room with senderId: {} and recipientId: {}", senderId, recipientId);
         try {
             String chatRoomId = chatRoomService.getChatRoomId(senderId, recipientId);
-            log.info("Returning chat room ID: {}", chatRoomId);
+            log.info("Received request for chat room with senderId: {} and recipientId: {}", senderId, recipientId);
             return ResponseEntity.ok(chatRoomId);
         } catch (Exception e) {
             log.error("Error getting chat room ID", e);
