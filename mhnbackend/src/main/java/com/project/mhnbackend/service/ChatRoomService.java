@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.project.mhnbackend.domain.ChatRoom;
@@ -56,5 +57,9 @@ public class ChatRoomService {
     		if (chatRoom.getChatRoomId().equals(chatRoomId)) return chatRoom;
     	}
         return null;
+    }
+
+    public List<ChatRoom> getAllChatRooms() {
+        return chatRoomRepository.findAll();
     }
 }

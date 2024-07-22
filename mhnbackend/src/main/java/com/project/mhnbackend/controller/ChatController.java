@@ -80,6 +80,11 @@ public class ChatController { //handles web requests and websocket communication
         return ResponseEntity.ok(new ChatRoomDTO(chatRoom, messages));
     }
 
+    @GetMapping("/api/chatrooms")
+    public ResponseEntity<List<ChatRoom>> getAllChatRooms() {
+        return ResponseEntity.ok(chatRoomService.getAllChatRooms());
+    }
+
     @GetMapping("/api/chat/room/{senderId}/{recipientId}")
     public ResponseEntity<String> getChatRoomId(@PathVariable("senderId") Long senderId, @PathVariable("recipientId") Long recipientId) {
         try {

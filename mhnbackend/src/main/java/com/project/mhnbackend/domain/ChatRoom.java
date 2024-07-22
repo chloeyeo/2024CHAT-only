@@ -23,4 +23,7 @@ public class ChatRoom {
     private String chatRoomId;
     private Long senderId;
     private Long recipientId;
+    private String title;
+    private String address;
+    private Long likes;
 }
