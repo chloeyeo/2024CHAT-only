@@ -33,12 +33,10 @@ public class ChatController { //handles web requests and websocket communication
 
     @MessageMapping("/chat.sendMessage")
     public ChatMessage receiveMessage(@Payload ChatMessage chatMessage) {
-    	log.info("Received message: {}", chatMessage);
         String chatRoomId = chatRoomService.getChatRoomId(
                 chatMessage.getSenderId(),
                 chatMessage.getRecipientId()
         );
-        log.info("Chat room ID: {}", chatRoomId);
         chatMessage.setChatRoomId(chatRoomId);
 
         ChatMessage savedMsg = chatMessageService.saveMessage(chatMessage);
@@ -47,7 +45,12 @@ public class ChatController { //handles web requests and websocket communication
                 "/private",
                 chatMessage
         );
+        simpMessagingTemplate.convertAndSend(
+                "/chatroom/" + chatRoomId,
+                chatMessage
+        );
         log.info("Saved message: {}", savedMsg);
+        log.info("Received message: {}", chatMessage);
         log.info("Message sent to user {}", chatMessage.getRecipientId());
         return savedMsg;
     }
@@ -61,11 +64,14 @@ public class ChatController { //handles web requests and websocket communication
 
         List<ChatMessage> messages = chatMessageService.getMessagesByChatRoomId(chatRoomId);
         ChatRoom chatRoom = chatRoomService.getChatRoomByChatRoomId(chatRoomId);
+        log.info("Received join request: {}", joinRequest);
+        log.info("ChatRoom Id created: {}", chatRoomId);
         return new ChatRoomDTO(chatRoom, messages);
     }
 
     @GetMapping("/api/chat/room/{chatRoomId}")
     public ResponseEntity<ChatRoomDTO> getChatRoomDTO(@PathVariable("chatRoomId") String chatRoomId) {
+        log.info("Received chat room ID: {}", chatRoomId);
         ChatRoom chatRoom = chatRoomService.getChatRoomByChatRoomId(chatRoomId);
         if (chatRoom == null) {
             return ResponseEntity.notFound().build();
@@ -97,8 +103,9 @@ public class ChatController { //handles web requests and websocket communication
         } catch (Exception e) {
             log.error("Error getting messages for chat room: {}", chatRoomId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ArrayList<>());  // Return an empty list in case of error
+                    .body(new ArrayList<>());  // Return an empty list in case of error
         }
     }
-    
+
+
 }
